@@ -5,6 +5,7 @@ import android.util.Log;
 import edu.up.cs371.soccer_application.soccerPlayer.SoccerPlayer;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -87,6 +88,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpGoals(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpGoals();
+            return true;
+        }
+
         return false;
     }
 
@@ -97,6 +105,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpAssists(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpAssists();
+            return true;
+        }
+
         return false;
     }
 
@@ -107,6 +122,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpShots(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpShots();
+            return true;
+        }
+
         return false;
     }
 
@@ -117,6 +139,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpSaves(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpSaves();
+            return true;
+        }
+
         return false;
     }
 
@@ -127,6 +156,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpFouls(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpFouls();
+            return true;
+        }
+
         return false;
     }
 
@@ -137,6 +173,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpYellowCards(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpYellowCards();
+            return true;
+        }
+
         return false;
     }
 
@@ -147,6 +190,13 @@ public class SoccerDatabase implements SoccerDB {
      */
     @Override
     public boolean bumpRedCards(String firstName, String lastName) {
+        SoccerPlayer result = getPlayer(firstName, lastName);
+
+        if(result != null){
+            result.bumpRedCards();
+            return true;
+        }
+
         return false;
     }
 
@@ -158,7 +208,18 @@ public class SoccerDatabase implements SoccerDB {
     @Override
     // report number of players on a given team (or all players, if null)
 	public int numPlayers(String teamName) {
-        return -1;
+       if(teamName == null){
+            return htable.size();
+       }
+        int count = 0;
+        Collection<SoccerPlayer> collection = htable.values();
+        for(SoccerPlayer i: collection){
+           if(i.getTeamName().equals(teamName)){
+               count++;
+           }
+        }
+
+        return count;
 	}
 
     /**
@@ -169,6 +230,31 @@ public class SoccerDatabase implements SoccerDB {
 	// get the nTH player
 	@Override
     public SoccerPlayer playerNum(int idx, String teamName) {
+       int count = 0;
+        Collection<SoccerPlayer> collection = htable.values();
+        if(teamName == null){
+            for(SoccerPlayer i: collection){
+
+                if(count == idx){
+                    return i;
+                }
+                count++;
+            }
+        }
+
+    else {
+            for (SoccerPlayer i : collection) {
+                if (teamName.equals(i.getTeamName())) {
+
+                    if (count == idx) {
+                        return i;
+                    }
+                    count++;
+                }
+            }
+
+
+        }
         return null;
     }
 
@@ -191,8 +277,31 @@ public class SoccerDatabase implements SoccerDB {
 	// write data to file
     @Override
 	public boolean writeData(File file) {
-        return false;
-	}
+
+        try {
+            PrintWriter f = new PrintWriter(file);
+            Collection<SoccerPlayer> collection = htable.values();
+            for(SoccerPlayer i: collection) {
+                f.write(logString(i.getFirstName()));
+                f.write(logString(i.getLastName()));
+                f.write(logString("" + i.getUniform()));
+                f.write(logString(i.getTeamName()));
+                f.write(logString("" + i.getGoals()));
+                f.write(logString("" + i.getAssists()));
+                f.write(logString("" + i.getYellowCards()));
+                f.write(logString("" + i.getRedCards()));
+                f.write(logString("" + i.getFouls()));
+                f.write(logString("" + i.getSaves()));
+                f.write(logString("" + i.getShots()));
+                f.close();
+            }
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
 
     /**
      * helper method that logcat-logs a string, and then returns the string.
